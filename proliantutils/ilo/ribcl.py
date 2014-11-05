@@ -405,14 +405,29 @@ class IloClient:
         return data
 
     def get_persistent_boot(self):
-        """Retrieves the current boot mode settings."""
+        """Retrieves the boot order of the host."""
         data = self._execute_command(
             'GET_PERSISTENT_BOOT', 'SERVER_INFO', 'read')
         if data is not None:
             return data['PERSISTENT_BOOT']['DEVICE']
 
+    def get_persistent_boot_device(self):
+        """Get the current persistent boot device set for the host."""
+        result = self.get_persistent_boot()
+        boot_mode = self._check_boot_mode(result)
+        if boot_mode == 'bios':
+	    return result[0]['value']
+	
+	value = result[0]['DESCRIPTION']
+	if 'NIC' in value:
+	    return 'NETWORK'
+	elif _isDisk([result[0]]):
+	    return 'HDD'
+	else:
+	    return None
+
     def set_persistent_boot(self, values=[]):
-        """Configures a boot from a specific device."""
+        """Configures to boot from a specific device."""
 
         xml = self._create_dynamic_xml(
             'SET_PERSISTENT_BOOT', 'SERVER_INFO', 'write')

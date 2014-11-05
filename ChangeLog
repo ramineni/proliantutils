@@ -1,14 +1,19 @@
 CHANGES
 =======
 
-v0.1.2
-------
+0.1.1
+-----
 
+* UPDATE_PERSISTENT_BOOT to work for Gen9 servers
+* backing out changes for host uuid and host get embedded health interfaces by Jim Mankovich
+* host uuid and host get embedded health interfaces by Jim Mankovich
+
+0.1.0
+-----
+
+* updated the function
+* Updated minor space issues in ribcl
 * added update_persistent_mode and other helper functions
-
-v1.1
-----
-
 * new commands added
 * Add support for pbr
 * Adding Documentation to ribcl module
