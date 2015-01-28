@@ -362,7 +362,8 @@ class IloClient:
         dic = {'DEVICE': device.upper()}
         xml = self._create_dynamic_xml(
             'SET_VM_STATUS', 'RIB_INFO', 'write', dic)
-
+        print xml
+        return xml
         if six.PY2:
             child_iterator = xml.getiterator()
         else:
@@ -509,3 +510,27 @@ class IloClient:
             raise IloError((msg)% e)
 	    
         return disk_list
+    
+    def reset_ilo(self):
+        """ Resets iLO"""
+        self._execute_command('RESET_RIB', 'RIB_INFO', 'write')
+    
+    def reset_ilo_credential(self, password):
+        """ Resets the ilo password """
+        
+        dic = {'USER_LOGIN': self.login}
+        root = self._create_dynamic_xml(
+            'MOD_USER', 'USER_INFO', 'write', dic)
+        
+        element = root.find('LOGIN/USER_INFO/MOD_USER')
+        etree.SubElement(element, 'PASSWORD', VALUE=password)
+        d = self._request_ilo(root)
+        data = self._parse_output(d)
+        return data
+    
+    def reset_to_factory_defaults(self):
+        """Resets iLO to factory defaults """
+        self._execute_command('FACTORY_DEFAULTS', 'RIB_INFO', 'write')
+    
+
+    
