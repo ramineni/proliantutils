@@ -465,3 +465,34 @@ class RISOperations(operations.IloOperations):
 
         # Change the Boot Mode
         self._change_bios_setting('BootMode', boot_mode)
+    
+    def reset_ilo_credential(self, password):
+        """Resets the iLO password.
+
+        :param password: The password to be set.
+        :raises: IloError, if account not found or on an error from iLO.
+        :raises: IloCommandNotSupportedError, if the command is not supported
+                 on the server."""
+
+        status, headers, accounts = self._rest_get('/rest/v1/AccountService/Accounts')
+        
+        if status != 200:
+            msg = self._get_extended_error(accounts)
+            raise exception.IloError(msg)
+   
+        for memberuri in accounts['links']['Member']:
+            uri = memberuri['href']
+            status, headers, account = self._rest_get(uri)
+            if account['UserName'] == self.login:
+                mod_user = {}
+                mod_user['Password'] = password
+                status, headers, response = self._rest_patch(uri,
+                                                             None, mod_user)
+                if status != 200:
+                    msg = self._get_extended_error(response)
+                    raise exception.IloError(msg)
+
+                return
+        
+        msg = "iLO Account with specified username is not found."
+        raise exception.IloError(msg)
