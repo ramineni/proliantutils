@@ -13,7 +13,7 @@
 # under the License.
 
 """Common functionalities used by both RIBCL and RIS."""
-
+import logging
 import time
 
 from proliantutils import exception
@@ -22,6 +22,7 @@ from proliantutils import exception
 RETRY_COUNT = 10
 
 
+@common.log_entry_exit
 def wait_for_ilo_after_reset(ilo_object):
     """Checks if iLO is up after reset."""
 
@@ -39,3 +40,13 @@ def wait_for_ilo_after_reset(ilo_object):
     else:
         msg = ('iLO is not up after reset.')
         raise exception.IloConnectionError(msg)
+
+
+def log_entry_exit(func):
+    def decorator(*args, **kwargs):
+        logging.debug("__Enter__ %s", func.__name__)
+        ret = func(*args, **kwargs)
+        logging.debug("__Exit__ %s", func.__name__)
+        return ret
+    return decorator
+

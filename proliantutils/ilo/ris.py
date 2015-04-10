@@ -19,18 +19,24 @@ import gzip
 import hashlib
 import httplib
 import json
+import logging
 import StringIO
 import urlparse
 
 from proliantutils import exception
-from proliantutils.ilo import common
+import common
 from proliantutils.ilo import operations
 
 """ Currently this class supports only secure boot and firmware settings
 related API's .
 
 TODO : Add rest of the API's that exists in RIBCL. """
-
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)-8s %(levelname)-8s %(message)s',
+                    datefmt='%m-%d %H:%M',
+                    filename='/tmp/proliantutils.log',
+                    filemode='w')
+logging.getLogger(__name__)
 
 class RISOperations(operations.IloOperations):
 
@@ -42,6 +48,7 @@ class RISOperations(operations.IloOperations):
         # Message registry support
         self.message_registries = {}
 
+    @common.log_entry_exit
     def _rest_op(self, operation, suburi, request_headers, request_body):
         """Generic REST Operation handler."""
 
@@ -49,6 +56,7 @@ class RISOperations(operations.IloOperations):
         # Used for logging on redirection error.
         start_url = url.geturl()
 
+        logging.debug("Performing rest operation %s", start_url)
         if request_headers is None:
             request_headers = dict()
 
@@ -140,6 +148,7 @@ class RISOperations(operations.IloOperations):
         request_headers['Content-Type'] = 'application/json'
         return self._rest_op('PUT', suburi, request_headers, request_body)
 
+    @common.log_entry_exit
     def _rest_post(self, suburi, request_headers, request_body):
         """REST POST operation.
 
@@ -601,6 +610,7 @@ class RISOperations(operations.IloOperations):
         msg = "iLO Account with specified username is not found."
         raise exception.IloError(msg)
 
+    @common.log_entry_exit
     def _get_ilo_details(self):
         """Gets iLO details
 
@@ -624,6 +634,7 @@ class RISOperations(operations.IloOperations):
 
         return manager, reset_uri
 
+    @common.log_entry_exit
     def reset_ilo(self):
         """Resets the iLO.
 
